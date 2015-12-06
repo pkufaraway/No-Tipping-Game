@@ -1,6 +1,8 @@
 function Weight(player, weight, x, y) {
 	this.x = x;
 	this.y = y;
+	this.originalX = x;
+	this.originalY = y;
 	this.player = player;
 	this.weight = weight;
 	if (player == "player 1") {

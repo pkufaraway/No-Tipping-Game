@@ -23,6 +23,8 @@ var start_point = mid_x - (size/2) * x_size;
 var end_point = mid_x + (size/2) * x_size;
 blocks = [];
 draggable_weights = [];
+mouseX = 0;
+mouseY = 0;
 
 // initialize blocks and weights
 initializeBlocks();
@@ -45,11 +47,11 @@ function mouseDownListener(evt) {
 			dragIndex = i;
 		}
 	}
-	for (i = 0; i < blocks.length; i ++) {
-		if (blocks[i].hitTest(mouseX, mouseY)) {
-			blocks[i].highlight();
-		}
-	}
+	// for (i = 0; i < blocks.length; i ++) {
+	// 	if (blocks[i].hitTest(mouseX, mouseY)) {
+	// 		blocks[i].highlight();
+	// 	}
+	// }
 	// add drag functionality
 	if (dragging) {
 		console.log("this is dragging");
@@ -78,6 +80,22 @@ function mouseUpListener(evt) {
 		dragging = false;
 		window.removeEventListener("mousemove", mouseMoveListener, false);
 	}
+	// check to see if the position dropped is valid
+	for (i = 0; i < blocks.length; i ++) {
+		if (blocks[i].hitTest(mouseX, mouseY)) {
+			console.log(draggable_weights[dragIndex].weight/10);
+			if (draggable_weights[dragIndex].weight / 10 < 1) {
+				draggable_weights[dragIndex].x = blocks[i].x + 6.5;
+				draggable_weights[dragIndex].y = blocks[i].y + 20;
+			} else {
+				draggable_weights[dragIndex].x = blocks[i].x;
+				draggable_weights[dragIndex].y = blocks[i].y + 20;
+			}
+			return;
+		}
+	}
+	draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
+	draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
 }
 
 function mouseMoveListener(evt) {
@@ -93,10 +111,13 @@ function mouseMoveListener(evt) {
 }
 
 function onTimerTick() {
-	draggable_weights[dragIndex].x = draggable_weights[dragIndex].x + easeAmount * (targetX - draggable_weights[dragIndex].x);
-	draggable_weights[dragIndex].y = draggable_weights[dragIndex].y + easeAmount * (targetY - draggable_weights[dragIndex].y);
 	if ((!dragging)) {
+		console.log(draggable_weights[dragIndex].x);
+		console.log(draggable_weights[dragIndex].y);
 		clearInterval(timer);
+	} else {
+		draggable_weights[dragIndex].x = draggable_weights[dragIndex].x + easeAmount * (targetX - draggable_weights[dragIndex].x);
+		draggable_weights[dragIndex].y = draggable_weights[dragIndex].y + easeAmount * (targetY - draggable_weights[dragIndex].y);
 	}
 	drawScreen();
 }
@@ -188,6 +209,11 @@ function drawScreen() {
 	ctx.fillStyle = "white";
 	ctx.fillRect(0,0,c.width,c.height);
 	drawStatic();
+	for (i = 0; i < blocks.length; i ++) {
+		if (blocks[i].hitTest(mouseX, mouseY)) {
+			blocks[i].highlight();
+		}
+	}
 	updateShapes();
 }
 

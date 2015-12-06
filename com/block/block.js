@@ -22,5 +22,6 @@ Block.prototype.drawToContext = function(ctx) {
 }
 
 Block.prototype.highlight = function() {
+	ctx.fillStyle = "#ff6699";
 	ctx.fillRect(this.x, this.y, this.width, this.height);
 }
