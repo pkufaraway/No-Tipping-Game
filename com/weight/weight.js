@@ -5,6 +5,7 @@ function Weight(player, weight, x, y) {
 	this.originalY = y;
 	this.player = player;
 	this.weight = weight;
+	this.draggable = true;
 	if (player == "player 1") {
 		this.color = "red";
 	} else if (player == "player 2"){

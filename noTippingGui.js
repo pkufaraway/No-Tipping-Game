@@ -1,9 +1,10 @@
 'use strict';
 var easeAmount = 1;
 // configure the board
+var board_weight = 3;
 var weights = 10;
 var numShapes = 10;
-var size = 20;
+var size = 40;
 var c = document.getElementById("myCanvas");
 c.addEventListener("mousedown", mouseDownListener, false);
 var ctx = c.getContext("2d");
@@ -15,13 +16,20 @@ var start_point = mid_x - (size/2) * x_size;
 var end_point = mid_x + (size/2) * x_size;
 var blocks = [];
 var draggable_weights = [];
+var recycles = [];
 var mouseX = 0;
 var mouseY = 0;
 var dragging, dragIndex, dragHoldX,dragHoldY, targetX, targetY, timer;
+// start working on phase 2
+var phase = 1;
 // initialize blocks and weights
 initializeBlocks();
 initializeWeights();
+initializeRecycle();
 drawScreen();
+
+// player logics
+var turn = 'player 1'
 
 function mouseDownListener(evt) {
 	var i;
@@ -35,8 +43,13 @@ function mouseDownListener(evt) {
 	// see if weight or block are touched
 	for (i = 0; i < draggable_weights.length; i ++) {
 		if (draggable_weights[i].hitTest(mouseX, mouseY)) {
-			dragging = true;
-			dragIndex = i;
+			if (turn == draggable_weights[i].player
+				&& draggable_weights[i].draggable) {
+				dragging = true;
+				dragIndex = i;
+			} else {
+				dragIndex = -1;
+			}
 		}
 	}
 	// for (i = 0; i < blocks.length; i ++) {
@@ -44,9 +57,16 @@ function mouseDownListener(evt) {
 	// 		blocks[i].highlight();
 	// 	}
 	// }
+	// 
+	// test recycle
+	for (i = 0; i < recycles.length; i ++) {
+		if (recycles[i].hitTest(mouseX, mouseY)) {
+			console.log('hit recycle');
+		}
+	}
 	// add drag functionality
 	if (dragging) {
-		console.log("this is dragging");
+		// console.log("this is dragging");
 		window.addEventListener("mousemove", mouseMoveListener, false);
 		dragHoldX = mouseX - draggable_weights[dragIndex].x;
 		dragHoldY = mouseY - draggable_weights[dragIndex].y;
@@ -75,7 +95,7 @@ function mouseUpListener(evt) {
 	// check to see if the position dropped is valid
 	for (var i = 0; i < blocks.length; i ++) {
 		if (blocks[i].hitTest(mouseX, mouseY)) {
-			console.log(draggable_weights[dragIndex].weight/10);
+			// console.log(draggable_weights[dragIndex].weight/10);
 			if (draggable_weights[dragIndex].weight / 10 < 1) {
 				draggable_weights[dragIndex].x = blocks[i].x + 6.5;
 				draggable_weights[dragIndex].y = blocks[i].y + 20;
@@ -83,16 +103,27 @@ function mouseUpListener(evt) {
 				draggable_weights[dragIndex].x = blocks[i].x;
 				draggable_weights[dragIndex].y = blocks[i].y + 20;
 			}
+			if (turn == 'player 1') {
+				turn = 'player 2';
+			} else {
+				turn = 'player 1';
+			}
 			blocks[i].insertWeight(draggable_weights[dragIndex]);
+			draggable_weights[dragIndex].draggable = false;
+			if (game_over()) {
+				alert(turn + ' wins');
+			}
 			return;
 		}
 	}
-	draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
-	draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
+	if (draggable_weights[dragIndex].draggable) {
+		draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
+		draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
+	}
 }
 
 function mouseMoveListener(evt) {
-	console.log(dragIndex)
+	// console.log(dragIndex)
 	var posX;
 	var posY;
 	mouseX = evt.clientX;
@@ -105,8 +136,8 @@ function mouseMoveListener(evt) {
 
 function onTimerTick() {
 	if ((!dragging)) {
-		console.log(draggable_weights[dragIndex].x);
-		console.log(draggable_weights[dragIndex].y);
+		// console.log(draggable_weights[dragIndex].x);
+		// console.log(draggable_weights[dragIndex].y);
 		clearInterval(timer);
 	} else {
 		draggable_weights[dragIndex].x = draggable_weights[dragIndex].x + easeAmount * (targetX - draggable_weights[dragIndex].x);
@@ -119,6 +150,7 @@ function initializeBlocks() {
 	for (var i = start_point; i < end_point; i += x_size) {
 		var b = new Block(i-(x_size/2), mid_y-50, x_size-1, y_size, counter);
 		blocks.push(b);
+		counter ++;
 	}
 	b = new Block(end_point-(x_size/2), mid_y-50, x_size-1, y_size, counter);
 	blocks.push(b);
@@ -158,12 +190,18 @@ function initializeWeights() {
 	// make sure that 3 is added to the block!!!
 	for (var i = 0; i < blocks.length; i ++) {
 		if (blocks[i].hitTest(w.x + 10, w.y)) {
-			console.log("this happend");
+			// console.log("this happend");
 			blocks[i].insertWeight(w);
 		}
 	}
 }
 
+function initializeRecycle() {
+	var recycle1 = new Recycle(start_point, mid_y + 90, 60, 60, 'player 1', ctx);
+	var recycle2 = new Recycle(end_point - 2.5*x_size, mid_y + 90, 60, 60, 'player 2', ctx);
+	recycles.push(recycle1);
+	recycles.push(recycle2);
+}
 function drawStatic() {
 	ctx.fillStyle = "#000000";
 	ctx.fillRect(start_point-x_size, mid_y-25, x_size-1, y_size);
@@ -215,4 +253,26 @@ function drawScreen() {
 		}
 	}
 	updateShapes();
+}
+
+function game_over() {
+	var left_torque = 0;
+	var right_torque = 0;
+	for (var i = 0; i < blocks.length; i ++) {
+		if (blocks[i].weight != null) {
+			console.log(blocks[i].index);
+			console.log(blocks[i].weight.weight);
+			left_torque -= (blocks[i].index + 3) * blocks[i].weight.weight;
+			right_torque -= (blocks[i].index + 1) * blocks[i].weight.weight;
+		}
+	}
+	// add information about the board weight, now let's do 3
+	left_torque -= 3 * board_weight;
+	right_torque -= board_weight;
+	console.log(left_torque);
+	console.log(right_torque);
+	if (left_torque > 0 || right_torque < 0) {
+		return true;
+	}
+	return false;
 }
