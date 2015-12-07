@@ -5,6 +5,7 @@ function Block(x, y, width, height, index) {
 	this.width = width;
 	this.height = height;
 	this.radius = 8;
+	this.weight = null;
 }
 
 Block.prototype.hitTest = function(hitX, hitY) {
@@ -12,7 +13,7 @@ Block.prototype.hitTest = function(hitX, hitY) {
 	var shapeY = this.y + this.height/1.2;
 	var dx = shapeX - hitX;
 	var dy = shapeY - hitY;
-	return (dx*dx + dy*dy < this.radius*this.radius);
+	return (dx*dx + dy*dy < this.radius*this.radius && this.weight == null);
 }
 
 Block.prototype.drawToContext = function(ctx) {
@@ -24,4 +25,8 @@ Block.prototype.drawToContext = function(ctx) {
 Block.prototype.highlight = function() {
 	ctx.fillStyle = "#ff6699";
 	ctx.fillRect(this.x, this.y, this.width, this.height);
+}
+
+Block.prototype.insertWeight = function(weight) {
+	this.weight = weight;
 }
