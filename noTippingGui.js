@@ -2,8 +2,8 @@
 var easeAmount = 1;
 // configure the board
 var board_weight = 3;
-var weights = 10;
-var numShapes = 10;
+var weights = 1;
+var numShapes = 5;
 var size = 40;
 var c = document.getElementById("myCanvas");
 c.addEventListener("mousedown", mouseDownListener, false);
@@ -19,8 +19,10 @@ var draggable_weights = [];
 var recycles = [];
 var mouseX = 0;
 var mouseY = 0;
-var dragging, dragIndex, dragHoldX,dragHoldY, targetX, targetY, timer;
+var dragging, dragIndex, blockIndex, dragHoldX,dragHoldY, targetX, targetY, timer;
 // start working on phase 2
+var phase1_countdown = weights * 2;
+var phase2_countdown = weights;
 var phase = 1;
 // initialize blocks and weights
 initializeBlocks();
@@ -41,17 +43,51 @@ function mouseDownListener(evt) {
 	mouseX = evt.clientX;
 	mouseY = evt.clientY;
 	// see if weight or block are touched
-	for (i = 0; i < draggable_weights.length; i ++) {
-		if (draggable_weights[i].hitTest(mouseX, mouseY)) {
-			if (turn == draggable_weights[i].player
-				&& draggable_weights[i].draggable) {
-				dragging = true;
-				dragIndex = i;
-			} else {
-				dragIndex = -1;
+	if (phase == 1) {
+		for (i = 0; i < draggable_weights.length; i ++) {
+			if (draggable_weights[i].hitTest(mouseX, mouseY)) {
+				if (turn == draggable_weights[i].player
+					&& draggable_weights[i].draggable) {
+					dragging = true;
+					dragIndex = i;
+				} else {
+					dragIndex = -1;
+				}
 			}
 		}
+	} else {
+		for (i = 0; i < blocks.length; i ++) {
+			if (blocks[i].hitTest(mouseX, mouseY) && blocks[i].weight != null) {
+				console.log('hit');
+				if (turn == 'player 1') {
+					console.log('hit player 1');
+					dragging = true;
+					blockIndex = i;
+					console.log(blocks[i].weight.index);
+					dragIndex = blocks[i].weight.index;
+					console.log(dragIndex);
+				} else {
+					console.log('does this happen');
+					if (phase2_countdown == 0) {
+						console.log('count down = 0');
+						dragging = true;
+						blockIndex = i;
+						dragIndex = blocks[i].weight.index;
+					} else if (blocks[i].weight.player == turn) {
+						console.log('same player');
+						dragging = true;
+						blockIndex = i;
+						dragIndex = blocks[i].weight.index;
+					} else {
+						blockIndex = -1;
+						dragIndex = -1;
+					}
+				}
+			}
+		}
+		console.log(dragIndex);
 	}
+	// also remember the block
 	// for (i = 0; i < blocks.length; i ++) {
 	// 	if (blocks[i].hitTest(mouseX, mouseY)) {
 	// 		blocks[i].highlight();
@@ -59,11 +95,6 @@ function mouseDownListener(evt) {
 	// }
 	// 
 	// test recycle
-	for (i = 0; i < recycles.length; i ++) {
-		if (recycles[i].hitTest(mouseX, mouseY)) {
-			console.log('hit recycle');
-		}
-	}
 	// add drag functionality
 	if (dragging) {
 		// console.log("this is dragging");
@@ -93,32 +124,73 @@ function mouseUpListener(evt) {
 		window.removeEventListener("mousemove", mouseMoveListener, false);
 	}
 	// check to see if the position dropped is valid
-	for (var i = 0; i < blocks.length; i ++) {
-		if (blocks[i].hitTest(mouseX, mouseY)) {
-			// console.log(draggable_weights[dragIndex].weight/10);
-			if (draggable_weights[dragIndex].weight / 10 < 1) {
-				draggable_weights[dragIndex].x = blocks[i].x + 6.5;
-				draggable_weights[dragIndex].y = blocks[i].y + 20;
-			} else {
-				draggable_weights[dragIndex].x = blocks[i].x;
-				draggable_weights[dragIndex].y = blocks[i].y + 20;
+	if (phase == 1) {
+		for (var i = 0; i < blocks.length; i ++) {
+			if (blocks[i].hitTest(mouseX, mouseY) && blocks[i].weight == null) {
+				// console.log(draggable_weights[dragIndex].weight/10);
+				if (draggable_weights[dragIndex].weight / 10 < 1) {
+					draggable_weights[dragIndex].x = blocks[i].x + 6.5;
+					draggable_weights[dragIndex].y = blocks[i].y + 20;
+				} else {
+					draggable_weights[dragIndex].x = blocks[i].x;
+					draggable_weights[dragIndex].y = blocks[i].y + 20;
+				}
+				if (turn == 'player 1') {
+					turn = 'player 2';
+				} else {
+					turn = 'player 1';
+				}
+				blocks[i].insertWeight(draggable_weights[dragIndex]);
+				phase1_countdown --;
+				draggable_weights[dragIndex].draggable = false;
+				if (game_over()) {
+					alert(turn + ' wins');
+				}
+				if (phase1_countdown == 0) {
+					// alert('phase 2 baby');
+					phase = 2;
+					for (var i = 0; i < blocks.length; i ++) {
+						if (blocks[i].weight != null) {
+							blocks[i].weight.draggable = true;
+							blocks[i].weight.originalX = blocks[i].weight.x;
+							blocks[i].weight.originalY = blocks[i].weight.y;
+						}
+					}
+				}
+				return;
 			}
-			if (turn == 'player 1') {
-				turn = 'player 2';
-			} else {
-				turn = 'player 1';
-			}
-			blocks[i].insertWeight(draggable_weights[dragIndex]);
-			draggable_weights[dragIndex].draggable = false;
-			if (game_over()) {
-				alert(turn + ' wins');
-			}
-			return;
 		}
-	}
-	if (draggable_weights[dragIndex].draggable) {
-		draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
-		draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
+		if (draggable_weights[dragIndex].draggable) {
+			draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
+			draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
+		}
+	} else {
+		// phase 2;
+		for (var i = 0; i < recycles.length; i ++) {
+			if (recycles[i].hitTest(mouseX, mouseY) && recycles[i].player == turn) {
+				draggable_weights[dragIndex].x = recycles[i].x;
+				draggable_weights[dragIndex].y = recycles[i].y;
+				if (turn == 'player 1') {
+					turn = 'player 2';
+				} else {
+					turn = 'player 1';
+				}
+				blocks[blockIndex].weight = null;
+				if (draggable_weights[dragIndex].player == 'player 2') {
+					phase2_countdown --;
+				}
+				draggable_weights[dragIndex].draggable = false;
+				if (game_over()) {
+					alert(turn + ' wins');
+				}
+				console.log('did we complete this');
+				return;
+			}
+		}
+		if (draggable_weights[dragIndex].draggable) {
+			draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
+			draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
+		}
 	}
 }
 
@@ -163,7 +235,8 @@ function initializeWeights() {
 		for (var j = start_point-x_size; j < start_point + 4*x_size; j += x_size) {
 			if (weight <= weights) {
 				var w = new Weight("player 1", weight, j, y);
-				draggable_weights.push(w);
+				var index = draggable_weights.push(w)-1;
+				draggable_weights[index].setIndex(index);
 				weight ++;
 			}
 		}
@@ -177,7 +250,8 @@ function initializeWeights() {
 		for (var j = end_point-x_size*4; j < end_point+x_size; j += x_size) {
 			if (weight <= weights) {
 				w = new Weight("player 2", weight, j, y);
-				draggable_weights.push(w);
+				var index = draggable_weights.push(w)-1;
+				draggable_weights[index].setIndex(index);
 				weight ++;
 			}
 		}
@@ -187,6 +261,8 @@ function initializeWeights() {
 	// draw the initial green weight on plank
 	w = new Weight("player 0", 3, mid_x - 4 * x_size - 6, 195);
 	draggable_weights.push(w);
+	var index = draggable_weights.push(w)-1;
+	draggable_weights[index].setIndex(index);
 	// make sure that 3 is added to the block!!!
 	for (var i = 0; i < blocks.length; i ++) {
 		if (blocks[i].hitTest(w.x + 10, w.y)) {
@@ -235,6 +311,9 @@ function drawStatic() {
 
 function updateShapes() {
 	var i;
+	for (i = 0; i < recycles.length; i ++) {
+		recycles[i].drawToContext(ctx);
+	}
 	for (i = 0; i < draggable_weights.length; i ++) {
 		draggable_weights[i].drawToContext(ctx);
 	}

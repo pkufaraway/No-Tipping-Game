@@ -29,3 +29,7 @@ Weight.prototype.drawToContext = function(ctx) {
 	ctx.fillStyle = this.color;
 	ctx.fillText(this.weight, this.x, this.y);
 }
+
+Weight.prototype.setIndex = function(index) {
+	this.index = index;
+}

@@ -13,7 +13,7 @@ Block.prototype.hitTest = function(hitX, hitY) {
 	var shapeY = this.y + this.height/1.2;
 	var dx = shapeX - hitX;
 	var dy = shapeY - hitY;
-	return (dx*dx + dy*dy < this.radius*this.radius && this.weight == null);
+	return (dx*dx + dy*dy < this.radius*this.radius);
 }
 
 Block.prototype.drawToContext = function(ctx) {
