@@ -2,25 +2,22 @@ function TippingGame(options) {
 	'use strict';
 	var settings = jQuery.extend(true, 
 	{
-		board_size: 16,
+		board_weight: 3,
+		board_size: 20,
 		weights: 5,
-		player1: "player 1",
-		player2: "player 2",
-		support1: -3,
-		support2: -1,
-		initial_block: 3,
-		intial_position: -4
-
+		player1: "AI",
+		player2: "AI",
 	}, options);
 
 	game = this;
+	this.board_weight = settings.board_weight;
 	this.board_size = settings.board_size;
 	this.weights = settings.weights;
-	this.phase = "adding";
+	this.phase = 1;
 	this.player1 = settings.player1;
 	this.player2 = settings.player2;
-	this.player1_weights = [];
-	this.player2_weights = [];
+	this.draggable_weights = [];
+
 	// player 1 starts first
 	this.turn_player = this.player1;
 
@@ -41,8 +38,9 @@ function TippingGame(options) {
 	for (i = 0; i < this.board_size; i += 1) {
 		this.board.push(new Block(i-(this.board_size/2)));
 	}
-	this.canvas = document.getElementById('interface');
+	this.c = document.getElementById('interface');
 	this.ctx = this.canvas.getContext('2d');
+	this.c.addEventListener("mousedown", mouseDownListener, false);
 }
 
 TippingGame.prototype.turn = function() {

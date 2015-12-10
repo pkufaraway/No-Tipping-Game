@@ -1,10 +1,8 @@
 'use strict';
-var easeAmount = 1;
 // configure the board
 var board_weight = 3;
-var weights = 1;
-var numShapes = 5;
-var size = 40;
+var weights = 5;
+var size = 20;
 var c = document.getElementById("myCanvas");
 c.addEventListener("mousedown", mouseDownListener, false);
 var ctx = c.getContext("2d");
@@ -24,6 +22,8 @@ var dragging, dragIndex, blockIndex, dragHoldX,dragHoldY, targetX, targetY, time
 var phase1_countdown = weights * 2;
 var phase2_countdown = weights;
 var phase = 1;
+var player1 = 'Daniel';
+var player2 = 'AI';
 // initialize blocks and weights
 initializeBlocks();
 initializeWeights();
@@ -135,16 +135,38 @@ function mouseUpListener(evt) {
 					draggable_weights[dragIndex].x = blocks[i].x;
 					draggable_weights[dragIndex].y = blocks[i].y + 20;
 				}
+				blocks[i].insertWeight(draggable_weights[dragIndex]);
+				phase1_countdown --;
+				draggable_weights[dragIndex].draggable = false;
 				if (turn == 'player 1') {
 					turn = 'player 2';
 				} else {
 					turn = 'player 1';
 				}
-				blocks[i].insertWeight(draggable_weights[dragIndex]);
-				phase1_countdown --;
-				draggable_weights[dragIndex].draggable = false;
 				if (game_over()) {
 					alert(turn + ' wins');
+				}
+				if (phase1_countdown == 0) {
+					// alert('phase 2 baby');
+					phase = 2;
+					for (var i = 0; i < blocks.length; i ++) {
+						if (blocks[i].weight != null) {
+							blocks[i].weight.draggable = true;
+							blocks[i].weight.originalX = blocks[i].weight.x;
+							blocks[i].weight.originalY = blocks[i].weight.y;
+						}
+					}
+				}
+				if (turn == 'player 1') {
+					if (player1 == 'AI') {
+						makeAIMove(phase, 'player 1');
+						turn = 'player 2';
+					} 
+				} else {
+					if (player2 == 'AI') {
+						makeAIMove(phase, 'player 2');
+						turn = 'player 1';
+					}
 				}
 				if (phase1_countdown == 0) {
 					// alert('phase 2 baby');
@@ -170,18 +192,29 @@ function mouseUpListener(evt) {
 			if (recycles[i].hitTest(mouseX, mouseY) && recycles[i].player == turn) {
 				draggable_weights[dragIndex].x = recycles[i].x;
 				draggable_weights[dragIndex].y = recycles[i].y;
-				if (turn == 'player 1') {
-					turn = 'player 2';
-				} else {
-					turn = 'player 1';
-				}
 				blocks[blockIndex].weight = null;
 				if (draggable_weights[dragIndex].player == 'player 2') {
 					phase2_countdown --;
 				}
 				draggable_weights[dragIndex].draggable = false;
+				if (turn == 'player 1') {
+					turn = 'player 2';
+				} else {
+					turn = 'player 1';
+				}
 				if (game_over()) {
 					alert(turn + ' wins');
+				}
+				if (turn == 'player 1') {
+					if (player1 == 'AI') {
+						makeAIMove(phase, 'player 1');
+						turn = 'player 2';
+					} 
+				} else {
+					if (player2 == 'AI') {
+						makeAIMove(phase, 'player 2');
+						turn = 'player 1';
+					}
 				}
 				console.log('did we complete this');
 				return;
@@ -190,6 +223,95 @@ function mouseUpListener(evt) {
 		if (draggable_weights[dragIndex].draggable) {
 			draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
 			draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
+		}
+	}
+}
+
+function makeAIMove(phase, player) {
+	if (phase == 1) {
+		phase1_countdown --;
+		for (var i = 0; i < blocks.length; i ++) {
+			if (blocks[i].weight == null) {
+				for (var j = 0; j < draggable_weights.length; j ++) {
+					if (draggable_weights[j].player == player && draggable_weights[j].draggable) {
+						blocks[i].weight = draggable_weights[j];
+						if (!game_over()) {
+							// select this weight
+							draggable_weights[j].draggable = false;
+							if (draggable_weights[j].weight / 10 < 1) {
+								draggable_weights[j].x = blocks[i].x + 6.5;
+								draggable_weights[j].y = blocks[i].y + 20;
+							} else {
+								draggable_weights[j].x = blocks[i].x;
+								draggable_weights[j].y = blocks[i].y + 20;
+							}
+							return;
+						} else {
+							blocks[i].weight = null;
+						}
+					}
+				}
+			}
+		}
+	} else {
+		if (player == 'player 1') {
+			var losing_block = 0;
+			for (var i = 0; i < blocks.length; i ++) {
+				if(blocks[i].weight != null) {
+					var temp = blocks[i].weight;
+					losing_block = blocks[i];
+					blocks[i].weight = null;
+					if (!game_over()) {
+						// set it to the recycle
+						temp.x = recycles[0].x;
+						temp.y = recycles[0].y;
+						return
+					} else {
+						blocks[i].weight = temp;
+					}
+				}
+			}
+			losing_block.weight.x = recycles[0].x;
+			losing_block.weight.y = recycles[0].y;
+			losing_block.weight = null;
+		} else {
+			var losing_block = 0;
+			if (phase2_countdown == 0) {
+				for (var i = 0; i < blocks.length; i ++) {
+					if(blocks[i].weight != null) {
+						var temp = blocks[i].weight;
+						losing_block = blocks[i];
+						blocks[i].weight = null;
+						if (!game_over()) {
+							// set it to the recycle
+							temp.x = recycles[1].x;
+							temp.y = recycles[1].y;
+							return
+						} else {
+							blocks[i].weight = temp;
+						}
+					}
+				}
+			} else {
+				phase2_countdown --;
+				for (var i = 0; i < blocks.length; i ++) {
+					if(blocks[i].weight != null && blocks[i].weight.player == player) {
+						var temp = blocks[i].weight;
+						losing_block = blocks[i];
+						blocks[i].weight = null;
+						if (!game_over()) {
+							temp.x = recycles[1].x;
+							temp.y = recycles[1].y;
+							return 
+						} else {
+							blocks[i].weight = temp;
+						}
+					}
+				}
+			}
+			losing_block.weight.x = recycles[1].x;
+			losing_block.weight.y = recycles[1].y;
+			losing_block.weight = null;
 		}
 	}
 }
@@ -212,10 +334,13 @@ function onTimerTick() {
 		// console.log(draggable_weights[dragIndex].y);
 		clearInterval(timer);
 	} else {
-		draggable_weights[dragIndex].x = draggable_weights[dragIndex].x + easeAmount * (targetX - draggable_weights[dragIndex].x);
-		draggable_weights[dragIndex].y = draggable_weights[dragIndex].y + easeAmount * (targetY - draggable_weights[dragIndex].y);
+		draggable_weights[dragIndex].x = draggable_weights[dragIndex].x + 1 * (targetX - draggable_weights[dragIndex].x);
+		draggable_weights[dragIndex].y = draggable_weights[dragIndex].y + 1 * (targetY - draggable_weights[dragIndex].y);
 	}
 	drawScreen();
+	if (game_over()) {
+		alert(turn + ' wins');
+	}
 }
 function initializeBlocks() {
 	var counter = -size/2;
