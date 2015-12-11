@@ -12,7 +12,7 @@ function TippingGame(options) {
 	{
 		board_weight: 3,
 		board_size: 20,
-		weights: 5,
+		weights: 1,
 		player1: "Daniel",
 		player2: "",
 	}, options);
@@ -97,7 +97,6 @@ TippingGame.prototype.setupGame = function() {
 	}
 	// initial green weight
 	w = new Weight(2, 3, mid_x - 4 * x_size - 6, 195);
-	this.draggable_weights.push(w);
 	var index = this.draggable_weights.push(w)-1;
 	this.draggable_weights[index].setIndex(index);
 	// make sure that 3 is added to the block!!!
@@ -110,8 +109,8 @@ TippingGame.prototype.setupGame = function() {
 	// ------------------------INITIALIZE WEIGHTS--------------------------------
 
 	// ------------------------INITIALIZE RECYCLES-------------------------------
-	var recycle1 = new Recycle(start_point, mid_y + 90, 60, 60, this.players[0].name, this.ctx);
-	var recycle2 = new Recycle(end_point - 2.5*x_size, mid_y + 90, 60, 60, this.players[1].name, this.ctx);
+	var recycle1 = new Recycle(start_point, mid_y + 90, 60, 60, this.players[0].index, this.ctx);
+	var recycle2 = new Recycle(end_point - 2.5*x_size, mid_y + 90, 60, 60, this.players[1].index, this.ctx);
 	this.recycles.push(recycle1);
 	this.recycles.push(recycle2);
 	// ------------------------INITIALIZE RECYCLES-------------------------------
@@ -127,9 +126,12 @@ TippingGame.prototype.doTurn = function() {
 	if (current_player.gameOver(this.blocks)) {
 		alert(current_player.name + ' wins');
 	} else {
+		console.log(current_player);
 		if (current_player.phase == 0) {
+			console.log('Phase 1');
 			current_player.placeWeight(this.blocks, this.draggable_weights);
 		} else {
+			console.log('Phase 2');
 			current_player.removeWeight(this.blocks, this.recycles, this.draggable_weights);
 		}
 	}

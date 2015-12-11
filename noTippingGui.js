@@ -460,7 +460,7 @@ function drawScreen() {
 	drawStatic();
 	for (var i = 0; i < blocks.length; i ++) {
 		if (blocks[i].hitTest(mouseX, mouseY)) {
-			blocks[i].highlight();
+			blocks[i].highlight(ctx);
 		}
 	}
 	updateShapes();
