@@ -4,6 +4,7 @@ var mouseY = 0;
 var x_size = 25;
 var y_size = 25;
 var mid_x, mid_y, start_point, end_point;
+var game;
 
 function TippingGame(options) {
 	'use strict';
@@ -16,7 +17,7 @@ function TippingGame(options) {
 		player2: "",
 	}, options);
 
-	var game = this;
+	game = this;
 	// all the necessary data structures/var to store info for the game
 	this.settings = settings;
 	this.board_weight = settings.board_weight;
@@ -27,6 +28,7 @@ function TippingGame(options) {
 	this.blocks = [];
 	this.recycles = [];
 	this.players = [];
+	this.turn = 0;
 	// set up canvas attachment
 	this.c = document.getElementById('interface');
 	this.ctx = this.c.getContext('2d');
@@ -43,13 +45,13 @@ TippingGame.prototype.setupGame = function() {
 		// this is an AI
 		this.players.push(new AI("AI_1", this.weights, 0, this.board_weight, 0));
 	} else {
-		this.players.push(new User(this.settings.player1, this.weights, 0, this.board_weight, 0));
+		this.players.push(new User(this.settings.player1, this.weights, 0, this.board_weight, 0, this.c));
 	}
 	if (this.settings.player2 == "") {
 		// this is an AI
 		this.players.push(new AI("AI_2", this.weights, 1, this.board_weight, 0));
 	} else {
-		this.players.push(new User(this.settings.player2, this.weights, 1, this.board_weight, 0));
+		this.players.push(new User(this.settings.player2, this.weights, 1, this.board_weight, 0, this.c));
 	}
 	// ------------------------INITIALIZE PLAYERS--------------------------------
 	
@@ -117,26 +119,36 @@ TippingGame.prototype.setupGame = function() {
 	this.drawScreen();
 };
 
-TippingGame.prototype.startGame = function() {
+TippingGame.prototype.doTurn = function() {
 	'use strict';
 	// let player 1 start first
-	var count = 0;
-	var index = 0;
-	var current_player = this.players[index];
-	while (!current_player.gameOver(this.blocks)) {
+	this.drawScreen();
+	var current_player = this.players[this.turn];
+	if (current_player.gameOver(this.blocks)) {
+		alert(current_player.name + ' wins');
+	} else {
 		if (current_player.phase == 0) {
-			current_player.placeWeight(this.blocks, this.draggable_weights);
+			current_player.placeWeight(this.blocks, this.draggable_weights, this.onTimerTick);
 		} else {
 			console.log("does this happen");
-			current_player.removeWeight(this.blocks, this.recycles, this.draggable_weights);
+			current_player.removeWeight(this.blocks, this.recycles, this.draggable_weights, this.onTimerTick);
 		}
-		index = (index + 1) % 2;
-		current_player = this.players[index];
-		this.drawScreen();
 	}
-	alert(current_player.name + ' wins');
 };
 
+TippingGame.prototype.onTimerTick = function() {
+	if ((!dragging)) {
+		// console.log(draggable_weights[dragIndex].x);
+		// console.log(draggable_weights[dragIndex].y);
+		mouseX = 0;
+		mouseY = 0;
+		clearInterval(timer);
+	} else {
+		this.draggable_weights[dragIndex].x = this.draggable_weights[dragIndex].x + 1 * (targetX - this.draggable_weights[dragIndex].x);
+		this.draggable_weights[dragIndex].y = this.draggable_weights[dragIndex].y + 1 * (targetY - this.draggable_weights[dragIndex].y);
+	}
+	this.drawScreen();
+}
 TippingGame.prototype.drawScreen = function() {
 	'use strict';
 	var ctx = this.ctx;

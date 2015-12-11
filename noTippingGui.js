@@ -9,7 +9,7 @@ var blocks = [];
 var draggable_weights = [];
 var recycles = [];
 var phase = 1;
-var c = document.getElementById("myCanvas");
+var c = document.getElementById("interface");
 // c.addEventListener("mousedown", mouseDownListener, false);
 jQuery(c).mousedown(function (event) {
 	mouseDownListener(event);
@@ -103,7 +103,7 @@ function mouseDownListener(evt) {
 	// add drag functionality
 	if (dragging) {
 		// console.log("this is dragging");
-		window.addEventListener("mousemove", mouseMoveListener, false);
+		c.addEventListener("mousemove", mouseMoveListener, false);
 		dragHoldX = mouseX - draggable_weights[dragIndex].x;
 		dragHoldY = mouseY - draggable_weights[dragIndex].y;
 		targetX = mouseX - dragHoldX;
@@ -111,7 +111,7 @@ function mouseDownListener(evt) {
 		timer = setInterval(onTimerTick, 1000/30);
 	}
 	c.removeEventListener("mousedown", mouseDownListener, false);
-	window.addEventListener("mouseup", mouseUpListener, false);
+	c.addEventListener("mouseup", mouseUpListener, false);
 	if (evt.preventDefault) {
 		evt.preventDefault();
 	} //standard
@@ -123,10 +123,10 @@ function mouseDownListener(evt) {
 
 function mouseUpListener(evt) {
 	c.addEventListener("mousedown", mouseDownListener, false);
-	window.removeEventListener("mouseup", mouseUpListener, false);
+	c.removeEventListener("mouseup", mouseUpListener, false);
 	if (dragging) {
 		dragging = false;
-		window.removeEventListener("mousemove", mouseMoveListener, false);
+		c.removeEventListener("mousemove", mouseMoveListener, false);
 	}
 	// check to see if the position dropped is valid
 	if (phase == 1) {
