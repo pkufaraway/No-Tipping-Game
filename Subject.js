@@ -34,44 +34,53 @@ function User(name, weights, index, board_weight, phase) {
 User.prototype = Object.create(Player.prototype);
 
 User.prototype.placeWeight = function(blocks, draggable_weights) {
-	this.made_move = false;
-	
-		jQuery(game.c).mousedown(function(event) {
-			var i;
-			dragging = false;
-			mouseX = event.clientX;
-			mouseY = event.clientY;
-			// see if any draggable weight is touched
-			for (i = 0; i < draggable_weights.length; i ++) {
-				if (draggable_weights[i].hitTest(mouseX, mouseY)) {
-					if (this.index == draggable_weights[i].player
-						&& draggable_weights[i].draggable) {
-						dragging = true;
-						dragIndex = i;
-					} else {
-						dragIndex = -1;
-					}
+	jQuery(game.c).mousedown(function(event) {
+		console.log(this);
+		console.log("Mouse donw")
+		var i;
+		dragging = false;
+		mouseX = event.clientX;
+		mouseY = event.clientY;
+		// see if any draggable weight is touched
+		for (i = 0; i < draggable_weights.length; i ++) {
+			console.log(mouseX);
+			console.log(mouseY);
+			console.log(draggable_weights[i].x);
+			console.log(draggable_weights[i].y);
+			console.log(this.index);
+			console.log(draggable_weights[i].player)
+			console.log(this.index == draggable_weights[i].player);
+			console.log(draggable_weights[i].draggable)
+			if (draggable_weights[i].hitTest(mouseX, mouseY)) {
+				if (this.index == draggable_weights[i].player
+					&& draggable_weights[i].draggable) {
+					console.log("does this happen");
+					dragging = true;
+					dragIndex = i;
+				} else {
+					dragIndex = -1;
 				}
 			}
-			// get the dragging motion here
-			if (dragging) {
-				jQuery(game.c).mousemove(function(event) {
-					var posX;
-					var posY;
-					mouseX = event.clientX;
-					mouseY = event.clientY;
-					posX = mouseX - dragHoldX;
-					posY = mouseY - dragHoldY;
-					targetX = posX;
-					targetY = posY;
-				});
-				dragHoldX = mouseX - draggable_weights[dragIndex].x;
-				dragHoldY = mouseY - draggable_weights[dragIndex].y;
-				targetX = mouseX - dragHoldX;
-				targetY = mouseY - dragHoldY;
-				timer = setInterval(game.onTimerTick, 1000/30);
-			}
-		});
+		}
+		// get the dragging motion here
+		if (dragging) {
+			console.log("true draggin");
+			jQuery(game.c).mousemove(function(event) {
+				var posX;
+				var posY;
+				mouseX = event.clientX;
+				mouseY = event.clientY;
+				posX = mouseX - dragHoldX;
+				posY = mouseY - dragHoldY;
+				targetX = posX;
+				targetY = posY;
+			}.bind(this));
+			dragHoldX = mouseX - draggable_weights[dragIndex].x;
+			dragHoldY = mouseY - draggable_weights[dragIndex].y;
+			targetX = mouseX - dragHoldX;
+			targetY = mouseY - dragHoldY;
+			timer = setInterval(game.onTimerTick, 1000/30);
+		}
 		jQuery(game.c).unbind("mousedown");
 		jQuery(game.c).mouseup(function(event) {
 			jQuery(game.c).unbind("mouseup");
@@ -91,35 +100,39 @@ User.prototype.placeWeight = function(blocks, draggable_weights) {
 					}
 					blocks[i].insertWeight(draggable_weights[dragIndex]);
 					draggable_weights[dragIndex].draggable = false;
-					this.made_move = true;
+					this.phase1_weights --;
+					if (this.phase1_weights == 0) {
+						if (this.index == 1) {
+							// if we are player 2, then there's no more blocks to move
+							// on to the board, so we reset
+							for (var i = 0; i < blocks.length; i ++) {
+								if (blocks[i].weight != null) {
+									blocks[i].weight.draggable = true;
+									blocks[i].weight.originalX = blocks[i].weight.x;
+									blocks[i].weight.originalY = blocks[i].weight.y;
+								}
+							}
+						}
+						this.phase = 1;
+					}
+					game.turn = (game.turn + 1) % 2;
+					game.doTurn();
 				}
 			}
 			if (draggable_weights[dragIndex].draggable) {
 				draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
 				draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
+				console.log(this);
+				this.placeWeight(blocks, draggable_weights);
 			}
-		});
+		}.bind(this));
 		if (event.preventDefault) {
 			event.preventDefault();
 		} //standard
 		else if (event.returnValue) {
 			event.returnValue = false;
 		} //older IE
-	this.phase1_weights --;
-	if (this.phase1_weights == 0) {
-		if (this.index == 1) {
-			// if we are player 2, then there's no more blocks to move
-			// on to the board, so we reset
-			for (var i = 0; i < blocks.length; i ++) {
-				if (blocks[i].weight != null) {
-					blocks[i].weight.draggable = true;
-					blocks[i].weight.originalX = blocks[i].weight.x;
-					blocks[i].weight.originalY = blocks[i].weight.y;
-				}
-			}
-		}
-		this.phase = 1;
-	}
+	}.bind(this));
 }
 
 User.prototype.removeWeight = function(blocks, recycles, draggable_weights) {
@@ -164,7 +177,6 @@ AI.prototype.placeWeight = function(blocks, draggable_weights) {
 	if (this.phase1_weights == 0) {
 		this.phase = 1;
 	}
-	console.log(this.phase1_weights);
 	game.turn = (game.turn + 1) % 2;
 	game.doTurn();
 }

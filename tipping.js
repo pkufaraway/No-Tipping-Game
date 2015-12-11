@@ -13,7 +13,7 @@ function TippingGame(options) {
 		board_weight: 3,
 		board_size: 20,
 		weights: 5,
-		player1: "",
+		player1: "Daniel",
 		player2: "",
 	}, options);
 
@@ -128,10 +128,9 @@ TippingGame.prototype.doTurn = function() {
 		alert(current_player.name + ' wins');
 	} else {
 		if (current_player.phase == 0) {
-			current_player.placeWeight(this.blocks, this.draggable_weights, this.onTimerTick);
+			current_player.placeWeight(this.blocks, this.draggable_weights);
 		} else {
-			console.log("does this happen");
-			current_player.removeWeight(this.blocks, this.recycles, this.draggable_weights, this.onTimerTick);
+			current_player.removeWeight(this.blocks, this.recycles, this.draggable_weights);
 		}
 	}
 };
@@ -144,11 +143,12 @@ TippingGame.prototype.onTimerTick = function() {
 		mouseY = 0;
 		clearInterval(timer);
 	} else {
-		this.draggable_weights[dragIndex].x = this.draggable_weights[dragIndex].x + 1 * (targetX - this.draggable_weights[dragIndex].x);
-		this.draggable_weights[dragIndex].y = this.draggable_weights[dragIndex].y + 1 * (targetY - this.draggable_weights[dragIndex].y);
+		game.draggable_weights[dragIndex].x = game.draggable_weights[dragIndex].x + 1 * (targetX - game.draggable_weights[dragIndex].x);
+		game.draggable_weights[dragIndex].y = game.draggable_weights[dragIndex].y + 1 * (targetY - game.draggable_weights[dragIndex].y);
 	}
-	this.drawScreen();
+	game.drawScreen();
 }
+
 TippingGame.prototype.drawScreen = function() {
 	'use strict';
 	var ctx = this.ctx;
@@ -190,7 +190,7 @@ TippingGame.prototype.drawScreen = function() {
 	// highlight for possible drop
 	for (i = 0; i < this.blocks.length; i ++) {
 		if (this.blocks[i].hitTest(mouseX, mouseY)) {
-			this.blocks[i].highlight();
+			this.blocks[i].highlight(ctx);
 		}
 	}
 

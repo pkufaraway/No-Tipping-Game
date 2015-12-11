@@ -22,7 +22,7 @@ Block.prototype.drawToContext = function(ctx) {
 	ctx.strokeRect(this.x, this.y, this.width, this.height);
 }
 
-Block.prototype.highlight = function() {
+Block.prototype.highlight = function(ctx) {
 	ctx.fillStyle = "#ff6699";
 	ctx.fillRect(this.x, this.y, this.width, this.height);
 }
