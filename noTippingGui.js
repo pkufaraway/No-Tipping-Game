@@ -15,8 +15,6 @@ jQuery(c).mousedown(function (event) {
 	mouseDownListener(event);
 });
 var ctx = c.getContext("2d");
-
-
 var x_size = 25;
 var y_size = 25;
 var mid_x = c.width/2;
@@ -30,10 +28,27 @@ var dragging, dragIndex, blockIndex, dragHoldX,dragHoldY, targetX, targetY, time
 var phase1_countdown = weights * 2;
 var phase2_countdown = weights;
 // initialize blocks and weights
-initializeBlocks();
-initializeWeights();
-initializeRecycle();
-drawScreen();
+jQuery('#start').click(function () {
+	player1 = jQuery('#player1_name').val() == ""? player1 : jQuery('#player1_name').val();
+	player2 = jQuery('#player2_name').val() == ""? player2 : jQuery('#player2_name').val();
+	weights = jQuery('#weights').val() == ""? weights : jQuery('#weights').val();
+	board_weight = jQuery('#board_weight').val() == ""? board_weight : jQuery('#board_weight').val();
+	size = jQuery(board_size).val() == "" ? size : jQuery('#board_size').val();
+	start_point = mid_x - (size/2) * x_size;
+	end_point = mid_x + (size/2) * x_size;
+	phase1_countdown = weights * 2;
+	phase2_countdown = weights;
+	initializeBlocks();
+	initializeWeights();
+	initializeRecycle();
+	drawScreen();
+	jQuery('#start').fadeOut('fast');
+	jQuery('canvas').slideDown('slow');
+});
+// initializeBlocks();
+// initializeWeights();
+// initializeRecycle();
+// drawScreen();
 
 // player logics
 var turn = 'player 1'

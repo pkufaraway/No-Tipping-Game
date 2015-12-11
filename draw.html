@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <html>
+<head>
+	<link rel="stylesheet" type="text/css" href="draw.css">
+</head>
 <body>
 <canvas id="interface" width="1050" height="400" style="border:1px solid #d3d3d3;">
 Your browser does not support the HTML5 canvas tag.</canvas>
+<form method="get">
+	<input type="text" id="player1_name" placeholder="P1 Name (Leave Blank for AI)">
+	<input type="text" id="player2_name" placeholder="P2 Name (Leave Blank for AI)">
+	<input type="text" id="board_weight" placeholder="Board Weight (Default = 3)">
+	<input type="text" id="board_size" placeholder="Board Size (Default = 20, Min = 10, Max = 40)">
+	<input type="text" id="weights" placeholder="Weights (Default = 5, Min = 5, Max = 15)">
+</form>
+<button id="start">Start</button>
 <script src="jquery-1.11.3.min.js"></script>
 <script src="com/weight/weight.js"></script>
 <script src="com/block/block.js"></script>
