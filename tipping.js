@@ -1,3 +1,10 @@
+var dragging, dragIndex, blockIndex, dragHoldX, dragHoldY, targetX, targetY, timer;
+var mouseX = 0;
+var mouseY = 0;
+var x_size = 25;
+var y_size = 25;
+var mid_x, mid_y, start_point, end_point;
+
 function TippingGame(options) {
 	'use strict';
 	var settings = jQuery.extend(true, 
@@ -5,44 +12,152 @@ function TippingGame(options) {
 		board_weight: 3,
 		board_size: 20,
 		weights: 5,
-		player1: "AI",
+		player1: "Daniel",
 		player2: "AI",
 	}, options);
 
-	game = this;
+	var game = this;
+	// all the necessary data structures/var to store info for the game
 	this.board_weight = settings.board_weight;
 	this.board_size = settings.board_size;
 	this.weights = settings.weights;
 	this.phase = 1;
-	this.player1 = settings.player1;
-	this.player2 = settings.player2;
 	this.draggable_weights = [];
-
+	this.blocks = []
+	this.recycles = []
 	// player 1 starts first
 	this.turn_player = this.player1;
-
-	// add the weights to each player
-	for (i = 1; i <= this.weights; i += 1) {
-		// add player 1
-		player1_block = new Block(i);
-		player1_block.insertWeight(new Weight(this.player1, i));
-		this.player1_weights.push(player1_block);
-		// add player 2
-		player2_block = new Block(i);
-		player2_block.insertWeight(new Weight(this.player2, i));
-		this.player2_weights.push(player2_block);
-	}
-
-	// add board
-	this.board = [] 
-	for (i = 0; i < this.board_size; i += 1) {
-		this.board.push(new Block(i-(this.board_size/2)));
-	}
+	// set up canvas attachment
 	this.c = document.getElementById('interface');
-	this.ctx = this.canvas.getContext('2d');
-	this.c.addEventListener("mousedown", mouseDownListener, false);
-}
+	this.ctx = this.c.getContext('2d');
+	mid_x = this.c.width/2;
+	mid_y = this.c.height/2 + y_size;
+	start_point = mid_x - (this.board_size/2) * x_size;
+	end_point = mid_x + (this.board_size/2) * x_size;
+};
 
+TippingGame.prototype.setupGame = function() {
+	'use strict';
+	// ------------------------INITIALIZE BLOCKS---------------------------------
+	var counter = -this.board_size/2;
+	for (var i = start_point; i < end_point; i += x_size) {
+		var b = new Block(i-(x_size/2), mid_y-50, x_size-1, y_size, counter);
+		this.blocks.push(b);
+		counter ++;
+	}
+	b = new Block(end_point-(x_size/2), mid_y-50, x_size-1, y_size, counter);
+	this.blocks.push(b);
+	// ------------------------INITIALIZE BLOCKS---------------------------------
+	
+	// ------------------------INITIALIZE WEIGHTS--------------------------------
+	// player 1 weights
+	var y = 30
+	var weight = 1
+	for (var i = 0; i < this.weights/5; i ++) {
+		for (var j = start_point-x_size; j < start_point + 4*x_size; j += x_size) {
+			if (weight <= this.weights) {
+				var w = new Weight("player 1", weight, j, y);
+				var index = this.draggable_weights.push(w)-1;
+				this.draggable_weights[index].setIndex(index);
+				weight ++;
+			}
+		}
+		y += 25;
+	}
+	// player 2 weights
+	y = 30;
+	weight = 1;
+	for (var i = 0; i < this.weights/5; i ++) {
+		for (var j = end_point-x_size*4; j < end_point+x_size; j += x_size) {
+			if (weight <= this.weights) {
+				w = new Weight("player 2", weight, j, y);
+				var index = this.draggable_weights.push(w)-1;
+				this.draggable_weights[index].setIndex(index);
+				weight ++;
+			}
+		}
+		y += 25;
+	}
+	// initial green weight
+	w = new Weight("player 0", 3, mid_x - 4 * x_size - 6, 195);
+	this.draggable_weights.push(w);
+	var index = this.draggable_weights.push(w)-1;
+	this.draggable_weights[index].setIndex(index);
+	// make sure that 3 is added to the block!!!
+	for (var i = 0; i < this.blocks.length; i ++) {
+		if (this.blocks[i].hitTest(w.x + 10, w.y)) {
+			// console.log("this happend");
+			this.blocks[i].insertWeight(w);
+		}
+	}
+	// ------------------------INITIALIZE WEIGHTS--------------------------------
+
+	// ------------------------INITIALIZE RECYCLES-------------------------------
+	var recycle1 = new Recycle(start_point, mid_y + 90, 60, 60, 'player 1', this.ctx);
+	var recycle2 = new Recycle(end_point - 2.5*x_size, mid_y + 90, 60, 60, 'player 2', this.ctx);
+	this.recycles.push(recycle1);
+	this.recycles.push(recycle2);
+	// ------------------------INITIALIZE RECYCLES-------------------------------
+	
+	this.drawScreen();
+};
+
+TippingGame.prototype.drawScreen = function() {
+	'use strict';
+	var ctx = this.ctx;
+	var i;
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, this.c.width, this.c.height);
+
+	// DRAW STATIC PORTION
+	ctx.fillStyle = "#000000";
+	ctx.fillRect(start_point-x_size, mid_y-25, x_size-1, y_size);
+	ctx.fillRect(end_point, mid_y-25, x_size-1, y_size);
+	var counter = -this.board_size/2;
+
+	// draw the board
+	for (i = start_point; i < end_point; i += x_size) {
+		ctx.fillRect(i, mid_y-25, x_size-1, y_size);
+		ctx.fillText(counter, i-5, mid_y+(y_size/2));
+		counter ++;
+	}
+	ctx.fillText(counter, end_point-5, mid_y+(y_size/2));
+
+	// draw the triangles
+	ctx.fillStyle = 'rgba(0,0,0,0)';
+	ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.moveTo(mid_x - 3 * x_size - 15, mid_y + (y_size/2) + 10)
+	ctx.lineTo(mid_x - 3 * x_size + 15, mid_y + (y_size/2) + 10)
+	ctx.lineTo(mid_x - 3 * x_size, mid_y)
+	ctx.closePath();
+	ctx.stroke();
+	ctx.fill();
+	ctx.moveTo(mid_x - 1 * x_size - 15, mid_y + (y_size/2) + 10)
+	ctx.lineTo(mid_x - 1 * x_size + 15, mid_y + (y_size/2) + 10)
+	ctx.lineTo(mid_x - 1 * x_size, mid_y)
+	ctx.closePath();
+	ctx.stroke();
+	ctx.fill();	
+
+	// highlight for possible drop
+	for (i = 0; i < this.blocks.length; i ++) {
+		if (this.blocks[i].hitTest(mouseX, mouseY)) {
+			this.blocks[i].highlight();
+		}
+	}
+
+	// DRAW DYNAMIC PORTION
+	for (i = 0; i < this.recycles.length; i ++) {
+		this.recycles[i].drawToContext(ctx);
+	}
+	for (i = 0; i < this.draggable_weights.length; i ++) {
+		this.draggable_weights[i].drawToContext(ctx);
+	}
+	for (i = 0; i < this.blocks.length; i ++) {
+		this.blocks[i].drawToContext(ctx);
+	}
+}
 TippingGame.prototype.turn = function() {
 	'use strict';
 	if (!this.validMove()) {

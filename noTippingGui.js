@@ -3,27 +3,32 @@
 var board_weight = 3;
 var weights = 5;
 var size = 20;
+var player1 = 'Daniel';
+var player2 = 'AI';
+var blocks = [];
+var draggable_weights = [];
+var recycles = [];
+var phase = 1;
 var c = document.getElementById("myCanvas");
-c.addEventListener("mousedown", mouseDownListener, false);
+// c.addEventListener("mousedown", mouseDownListener, false);
+jQuery(c).mousedown(function (event) {
+	mouseDownListener(event);
+});
 var ctx = c.getContext("2d");
+
+
 var x_size = 25;
 var y_size = 25;
 var mid_x = c.width/2;
 var mid_y = c.height/2 + y_size;
 var start_point = mid_x - (size/2) * x_size;
 var end_point = mid_x + (size/2) * x_size;
-var blocks = [];
-var draggable_weights = [];
-var recycles = [];
 var mouseX = 0;
 var mouseY = 0;
 var dragging, dragIndex, blockIndex, dragHoldX,dragHoldY, targetX, targetY, timer;
 // start working on phase 2
 var phase1_countdown = weights * 2;
 var phase2_countdown = weights;
-var phase = 1;
-var player1 = 'Daniel';
-var player2 = 'AI';
 // initialize blocks and weights
 initializeBlocks();
 initializeWeights();
@@ -158,12 +163,12 @@ function mouseUpListener(evt) {
 					}
 				}
 				if (turn == 'player 1') {
-					if (player1 == 'AI') {
+					if (player1 == 'AI' && !game_over()) {
 						makeAIMove(phase, 'player 1');
 						turn = 'player 2';
 					} 
 				} else {
-					if (player2 == 'AI') {
+					if (player2 == 'AI' && !game_over()) {
 						makeAIMove(phase, 'player 2');
 						turn = 'player 1';
 					}
@@ -206,12 +211,12 @@ function mouseUpListener(evt) {
 					alert(turn + ' wins');
 				}
 				if (turn == 'player 1') {
-					if (player1 == 'AI') {
+					if (player1 == 'AI' && !game_over()) {
 						makeAIMove(phase, 'player 1');
 						turn = 'player 2';
 					} 
 				} else {
-					if (player2 == 'AI') {
+					if (player2 == 'AI' && !game_over()) {
 						makeAIMove(phase, 'player 2');
 						turn = 'player 1';
 					}
@@ -332,6 +337,8 @@ function onTimerTick() {
 	if ((!dragging)) {
 		// console.log(draggable_weights[dragIndex].x);
 		// console.log(draggable_weights[dragIndex].y);
+		mouseX = 0;
+		mouseY = 0;
 		clearInterval(timer);
 	} else {
 		draggable_weights[dragIndex].x = draggable_weights[dragIndex].x + 1 * (targetX - draggable_weights[dragIndex].x);
