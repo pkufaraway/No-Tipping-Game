@@ -28,7 +28,15 @@ var dragging, dragIndex, blockIndex, dragHoldX,dragHoldY, targetX, targetY, time
 var phase1_countdown = weights * 2;
 var phase2_countdown = weights;
 // initialize blocks and weights
-jQuery('#start').click(function () {
+jQuery('#start').click(function (event) {
+	ctx.clearRect(0, 0, c.width, c.height);
+	blocks = [];
+	draggable_weights = [];
+	recycles = [];
+	phase = 1;
+	phase1_countdown = weights * 2;
+	phase2_countdown = weights;
+	event.preventDefault();
 	player1 = jQuery('#player1_name').val() == ""? player1 : jQuery('#player1_name').val();
 	player2 = jQuery('#player2_name').val() == ""? player2 : jQuery('#player2_name').val();
 	weights = jQuery('#weights').val() == ""? weights : jQuery('#weights').val();
@@ -42,7 +50,7 @@ jQuery('#start').click(function () {
 	initializeWeights();
 	initializeRecycle();
 	drawScreen();
-	jQuery('#start').fadeOut('fast');
+	jQuery('#start').text('Restart');
 	jQuery('canvas').slideDown('slow');
 });
 // initializeBlocks();
@@ -164,7 +172,7 @@ function mouseUpListener(evt) {
 					turn = 'player 1';
 				}
 				if (game_over()) {
-					alert(turn + ' wins');
+					drawWinner();
 				}
 				if (phase1_countdown == 0) {
 					// alert('phase 2 baby');
@@ -223,7 +231,7 @@ function mouseUpListener(evt) {
 					turn = 'player 1';
 				}
 				if (game_over()) {
-					alert(turn + ' wins');
+					drawWinner();
 				}
 				if (turn == 'player 1') {
 					if (player1 == 'AI' && !game_over()) {
@@ -361,7 +369,7 @@ function onTimerTick() {
 	}
 	drawScreen();
 	if (game_over()) {
-		alert(turn + ' wins');
+		drawWinner();
 	}
 }
 function initializeBlocks() {
@@ -420,8 +428,8 @@ function initializeWeights() {
 }
 
 function initializeRecycle() {
-	var recycle1 = new Recycle(start_point, mid_y + 90, 60, 60, 'player 1', ctx);
-	var recycle2 = new Recycle(end_point - 2.5*x_size, mid_y + 90, 60, 60, 'player 2', ctx);
+	var recycle1 = new Recycle(start_point - 40, mid_y + 70, 60, 60, 'player 1', ctx);
+	var recycle2 = new Recycle(end_point - 2.5*x_size, mid_y + 70, 60, 60, 'player 2', ctx);
 	recycles.push(recycle1);
 	recycles.push(recycle2);
 }
@@ -431,6 +439,7 @@ function drawStatic() {
 	ctx.fillRect(end_point, mid_y-25, x_size-1, y_size);
 	var counter = -size/2;
 	// draw the board
+	ctx.font = "10px Arial";
 	for (var i = start_point; i < end_point; i += x_size) {
 		ctx.fillRect(i, mid_y-25, x_size-1, y_size);
 		ctx.fillText(counter, i-5, mid_y+(y_size/2));
@@ -454,6 +463,29 @@ function drawStatic() {
 	ctx.closePath();
 	ctx.stroke();
 	ctx.fill();	
+
+	// draw the names as well
+	ctx.fillStyle = "red";
+	ctx.font = "20px Arial";
+	ctx.fillText(player1, 40, 30);
+	ctx.fillStyle = "blue";
+	ctx.fillText(player2, c.width-120, 30);
+	if (turn == 'player 1') {
+
+	} else {
+
+	}
+}
+
+function drawWinner() {
+	ctx.font = "20px Arial";
+	if (turn == 'player 1') {
+		ctx.fillStyle = "red";
+		ctx.fillText(player1 + ' wins!', mid_x-40, 30);
+	} else {
+		ctx.fillStyle = "blue";
+		ctx.fillText(player2 + ' wins!', mid_x-40, 30);
+	}
 }
 
 function updateShapes() {
@@ -475,7 +507,7 @@ function drawScreen() {
 	drawStatic();
 	for (var i = 0; i < blocks.length; i ++) {
 		if (blocks[i].hitTest(mouseX, mouseY)) {
-			blocks[i].highlight(ctx);
+			blocks[i].highlight(ctx, turn);
 		}
 	}
 	updateShapes();

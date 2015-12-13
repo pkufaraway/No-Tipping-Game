@@ -22,8 +22,13 @@ Block.prototype.drawToContext = function(ctx) {
 	ctx.strokeRect(this.x, this.y, this.width, this.height);
 }
 
-Block.prototype.highlight = function(ctx) {
-	ctx.fillStyle = "#ff6699";
+Block.prototype.highlight = function(ctx, turn) {
+	if (turn == 'player 1') {
+		ctx.fillStyle = '#ff9999';
+	} else {
+		ctx.fillStyle = '#e5e5ff';
+	}
+	// ctx.fillStyle = "#ff6699";
 	ctx.fillRect(this.x, this.y, this.width, this.height);
 }
 
