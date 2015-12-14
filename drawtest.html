@@ -1,0 +1,80 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+    	<title>Dr Ecco</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="draw.css" />
+        <link rel="stylesheet" type="text/css" href="jquery-ui.min.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="../../style.css" media="screen" /> -->
+    </head>
+    <body>
+        <canvas id="interface" width="1050" height="400" style="border:1px solid #d3d3d3;">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        <script src="jquery-1.11.3.min.js"></script>
+        <script src="jquery-ui.min.js"></script>
+         <h1 class="title" align="center">No Tipping Game</h1> 
+        <form class="pure-form pure-form-stacked">
+            <fieldset>
+                <label for="player1_name">Player 1</label>
+                <input id="player1_name" type="text" placeholder="Leave Blank for AI">
+ 
+                <label for="player2_name">Player 2</label>
+                <input id="player2_name" type="text" placeholder="Leave Blank for AI">
+
+                <label for="board_weight">Board Weight</label>
+                <input id="board_weight" type="text" placeholder="Default = 3">
+
+                <script>
+                $(function() {
+                    $("#board_size").slider({
+                        value: 20, 
+                        min: 10,
+                        max: 40, 
+                        step: 1,
+                        slide: function(event, ui) {
+                            $("#board_size span").text(ui.value);
+                        }
+                    });
+                    $("#board_size span").text($("#board_size").slider("value"));
+                });
+                </script>
+                    
+                <label for="board_size">Board Size</label>
+                <!-- <input type="range" id="board_size" class="pure-u-23-24 ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" value="20" min="10" max="40" step="1"> -->
+                <!-- <p id="board-change">20</p> -->
+                <div id="board_size" style="width:170px; margin-left:10px"></div>
+                <br />
+               
+
+                <script>
+                $(function() {
+                    $("#weights").slider({
+                        value: 5, 
+                        min: 5,
+                        max: 15, 
+                        step: 1,
+                        slide: function(event, ui) {
+                            $("#weights span").text(ui.value);
+                        }
+                    });
+                    $("#weights span").text($("#weights").slider("value"));
+                });
+                </script>
+                <label for="weights">Number of Weights</label>
+                <div id="weights" style="width:170px; margin-left:10px;"></div>
+                <br />
+                <button id="start" type="submit" class="pure-button pure-button-primary">Start</button>
+            </fieldset>
+        </form>
+        <div style="float:left; width:300px">
+            <p> The No Tipping Game is a game where you place weights on a board. In this two player game, players take turn placing each of their weights onto the board in phase 1 and remove the weights on the board in phase 2. If after any play, the placement of a block causes the board to tip, then the player who did that play loses. In phase 2, player 2 is limited to remove its own weights until there is none of player 2's weights on the board. This game is configurable so you can set the inital weight of the board, how long you want the board to be, and how many weights each player can have. GL HF.</p>
+        </div>
+        <script src="com/weight/weight.js"></script>
+        <script src="com/block/block.js"></script>
+        <script src="com/recycle/recycle.js"></script>
+        <!-- <script src="Subject.js"></script> -->
+        <!-- <script src="tipping.js"></script>
+        <script src="main.js"></script> -->
+        <script src="noTippingGui.js"></script>
+    </body>
+</html>

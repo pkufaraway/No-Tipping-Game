@@ -1,3 +1,11 @@
+body {
+    background-color: #f5f8fa;
+}
+main {
+    width: 800px;
+    margin-left: auto ;
+    margin-right: auto ;
+}
 canvas {display:none;}
 /*!
 Pure v0.6.0
@@ -37,7 +45,6 @@ figure,
 footer,
 header,
 hgroup,
-main,
 menu,
 nav,
 section,
@@ -766,7 +773,7 @@ this the same font stack that Normalize.css sets for the `body`.
 
 .pure-button {
     font-family: inherit;
-    font-size: 100%;
+    font-size: 20px;
     padding: 0.5em 1em;
     color: #444; /* rgba not supported (IE 8) */
     color: rgba(0, 0, 0, 0.80); /* rgba supported */
@@ -837,7 +844,11 @@ also have border and padding. This is done because some browsers don't render
 the padding. We explicitly set the box-model for select elements to border-box,
 so we can ignore the csslint warning.
 */
-
+.pure-form {
+  marign: 0 auto;
+  float:left;
+  width:400px;
+}
 .pure-form input[type="text"],
 .pure-form input[type="password"],
 .pure-form input[type="email"],

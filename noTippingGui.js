@@ -39,9 +39,9 @@ jQuery('#start').click(function (event) {
 	event.preventDefault();
 	player1 = jQuery('#player1_name').val() == ""? player1 : jQuery('#player1_name').val();
 	player2 = jQuery('#player2_name').val() == ""? player2 : jQuery('#player2_name').val();
-	weights = jQuery('#weights').val() == ""? weights : jQuery('#weights').val();
+	weights = jQuery('#weights').slider("value") == ""? weights : jQuery('#weights').slider("value");
 	board_weight = jQuery('#board_weight').val() == ""? board_weight : jQuery('#board_weight').val();
-	size = jQuery(board_size).val() == "" ? size : jQuery('#board_size').val();
+	size = jQuery("#board_size").slider("value") == "" ? size : jQuery('#board_size').slider("value");
 	start_point = mid_x - (size/2) * x_size;
 	end_point = mid_x + (size/2) * x_size;
 	phase1_countdown = weights * 2;
