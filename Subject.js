@@ -115,7 +115,7 @@ User.prototype.placeWeight = function(blocks, draggable_weights) {
 				jQuery(game.c).unbind();
 				this.placeWeight(blocks, draggable_weights);
 			}
-			else(draggable_weights[dragIndex].draggable) {
+			else if(draggable_weights[dragIndex].draggable) {
 				draggable_weights[dragIndex].x = draggable_weights[dragIndex].originalX;
 				draggable_weights[dragIndex].y = draggable_weights[dragIndex].originalY;
 				jQuery(game.c).unbind();

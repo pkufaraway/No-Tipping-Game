@@ -6,6 +6,12 @@
         <link rel="stylesheet" type="text/css" href="jquery-ui.min.css"/>
 		<!-- <link rel="stylesheet" type="text/css" href="../../style.css" media="screen" /> -->
     </head>
+    <?php 
+        setcookie("name","value",time()+$int);
+        /*name is your cookie's name
+        value is cookie's value
+        $int is time of cookie expires*/
+    ?>
     <body>
         <canvas id="interface" width="1050" height="400" style="border:1px solid #d3d3d3;">
             Your browser does not support the HTML5 canvas tag.
@@ -29,11 +35,7 @@
                     $("#board_size").slider({
                         value: 20, 
                         min: 10,
-<<<<<<< HEAD
                         max: 50,
-=======
-                        max: 50, 
->>>>>>> First Commit
                         step: 1,
                         slide: function(event, ui) {
                             $("#board_size span").text(ui.value);
