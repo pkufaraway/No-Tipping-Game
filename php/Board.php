@@ -42,6 +42,7 @@ class Board{
         else {
             $s = $s . " 0";
         }
+	echo "Current Board:".substr($s, 1 , -1)."\n";
         return $s;
     }
 
