@@ -11,6 +11,9 @@ class Board{
     private $currentPut;
     public $gameOver;
 
+    /**This function is used to check the balance, and check whether it is over or not
+     * @return bool true means game is over, false means not over
+     */
     public function isGameOver(){
         $leftTorque = 0;
         $rightTorque = 0;
@@ -24,6 +27,11 @@ class Board{
         return $leftTorque < 0 || $rightTorque >0;
     }
 
+
+    /**first integer: 1 means place stage, 2 means remove stage;
+     * last integer: 1 means game is over, 0 means game is not over;
+     * @return string the information for players
+     */
     function generateSendingString(){
         if($this->currentState == "place"){
             $s = "1";
@@ -42,22 +50,28 @@ class Board{
         else {
             $s = $s . " 0";
         }
-	echo "Current Board:".substr($s, 1 , -1)."\n";
         return $s;
     }
 
+    /**Print o
+     * ut the information about which player wins the game
+     * @param $gameOverReason the reason to print out to screen
+     */
     public function setGameOver($gameOverReason){
         $this->gameOver = true;
         if($this -> currentTurn == 1){
-            echo "Player 2 wins \n";
-            echo $gameOverReason;
+            echo "$gameOverReason Player 2 wins \n";
         }
         else{
-            echo "Player 1 wins \n";
-            echo $gameOverReason;
+            echo "$gameOverReason Player 1 wins \n";
         }
     }
 
+
+    /**The move function puts weight on position, and using isGameOver to check the balance
+     * @param $weight the weight that currentUser want to move
+     * @param $position the position that the currentUser want to place
+     */
     public function move($weight, $position){
         if($position < -$this->boardLength || $position > $this->boardLength || $this->boardState[$position] != 0){
             $this->setGameOver("Wrong position from player $this->currentTurn\n");
@@ -84,6 +98,10 @@ class Board{
         }
     }
 
+
+    /**Remove funciton remove the weight from position, check if there is no weight.
+     * @param $position the position that player want to remove weight.
+     */
     public function remove($position){
         if($position < -$this->boardLength || $position > $this->boardLength || $this->boardState[$position] == 0){
             $this->setGameOver("Wrong position from player $this->currentTurn\n");
@@ -102,6 +120,10 @@ class Board{
         }
     }
 
+    /**Give player turn and the time he consumed, update the time of him.
+     * @param $turn
+     * @param $time
+     */
     public function updateTime($turn, $time){
         $this->player[$turn]->timeLeft -= ($time * 1e-6);
         echo "Player ".$turn." has ".$this->player[$turn]->timeLeft."s left\n";
@@ -127,3 +149,4 @@ class Board{
 
     }
 }
+

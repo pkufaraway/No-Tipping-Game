@@ -28,7 +28,7 @@ def find_place_position(key, board):
             board[i] = key
             if check_balance(board):
                 board[i] = 0
-	        return i
+                return i
             board[i] = 0
         if board[50-i] == 0:
             board[50-i] = key
@@ -54,15 +54,16 @@ while(1):
         for key,value in myWeight.iteritems():
             if value == 1:
                 position = find_place_position(key, board)
-                print key, position-25
                 if position != -100:
                     allPosition.append((key, position - 25))
+                if position != -100:
+                    allPosition.append((key, position - 25))
+                    break
         if len(allPosition) == 0:
             choice = (1, 0)
         else:
             choice = random.choice(allPosition)
-            random.jumpahead(1);
-	myWeight[choice[0]] = 0
+        myWeight[choice[0]] = 0
         print choice
         s.sendall('{} {}'.format(choice[0], choice[1]))
 
@@ -80,7 +81,7 @@ while(1):
         else:
             choice = random.choice(allPossiblePosition)
             random.jumpahead(1);
-	print choice
+        ##print choice
         s.sendall('{}'.format(choice))
 
 
