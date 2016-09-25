@@ -10,7 +10,6 @@ class GameController
     function createConnection()
     {
         socket_listen($this->socket);
-        socket_set_nonblock($this->socket);
         echo "Waiting for Player 1\n";
         while(1){
             $this->resources[1] = socket_accept($this->socket);
