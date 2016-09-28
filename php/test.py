@@ -1,9 +1,9 @@
 # Echo client program
 import socket
-import time
+import sys
 import random
 HOST = 'localhost'    # The remote host
-PORT = 50000              # The same port as used by the server
+PORT = int(sys.argv[1])              # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 myWeight = dict()
@@ -45,7 +45,7 @@ while(1):
     data = [int(data.split(' ')[i]) for i in range(0, 53)]
     board = data[1:-1]
     check_balance(board)
-    print board
+    #print board
     if data[52] == 1:
         break
 

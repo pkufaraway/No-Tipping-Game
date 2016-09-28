@@ -43,8 +43,6 @@ class GameController
 
     function send($player, $string)
     {
-
-        echo "$string\n";
         socket_write($this->resources[$player], $string);
     }
 

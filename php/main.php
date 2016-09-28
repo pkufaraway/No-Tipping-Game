@@ -4,11 +4,19 @@
 //error_reporting(E_ALL);
 include "GameController.php";
 include "Board.php";
-$myController = new GameController("localhost",50000);
+$myController = new GameController("localhost",$argv[1]);
 $myGame = new Board(25,15,3);
 $myController->createConnection();
 
 while(!$myGame->gameOver){
+    echo "--------------------------------------------------------------------------------------------------------------\n";
+    $sendingString = $myGame->generateSendingString();
+    if($sendingString[0] == '0'){
+        echo "Placing Stage, board state: \n";
+    } else {
+        echo "Removing Stage, board state: \n";
+    }
+    echo substr($sendingString, 2 , strlen($sendingString) - 4)."\n";
     $myController->send($myGame->currentTurn, $myGame->generateSendingString());
     $time1 = microtime();
     $move = $myController->recv($myGame->currentTurn);
