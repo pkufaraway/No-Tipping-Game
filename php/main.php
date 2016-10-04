@@ -18,9 +18,9 @@ while(!$myGame->gameOver){
     }
     echo substr($sendingString, 2 , strlen($sendingString) - 4)."\n";
     $myController->send($myGame->currentTurn, $myGame->generateSendingString());
-    $time1 = microtime();
+    $time1 = microtime(true);
     $move = $myController->recv($myGame->currentTurn);
-    $time2 = microtime();
+    $time2 = microtime(true);
     $myGame->updateTime($myGame->currentTurn, $time2 - $time1);
     $myMove = explode(" ", $move);
     if($myGame->currentState == "place") {

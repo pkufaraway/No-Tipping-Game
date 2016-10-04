@@ -125,12 +125,12 @@ class Board{
      * @param $time
      */
     public function updateTime($turn, $time){
-        $this->player[$turn]->timeLeft -= ($time * 1e-6);
+        $this->player[$turn]->timeLeft -= $time;
         echo "Player ".$turn." has ".$this->player[$turn]->timeLeft."s left\n";
     }
 
     function __construct($boardLength, $numberOfWeight, $boardWeight){
-        if($boardLength <= 3 || $numberOfWeight <=0){
+        if($boardLength <= 3 || $numberOfWeight <= 0){
             throw new Exception("Not proper initialization parameter $boardLength $numberOfWeight");
         }
         $this->gameOver = false;
