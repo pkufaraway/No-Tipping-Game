@@ -21,14 +21,15 @@ while(!$myGame->gameOver){
     $time1 = microtime(true);
     $move = $myController->recv($myGame->currentTurn);
     $time2 = microtime(true);
-    $myGame->updateTime($myGame->currentTurn, $time2 - $time1);
     $myMove = explode(" ", $move);
+    $myGame->updateTime($myGame->currentTurn, $time2 - $time1);
     if($myGame->currentState == "place") {
         $myGame->move((int)$myMove[0], (int)$myMove[1]);
     }
     else {
         $myGame->remove((int)$myMove[0]);
     }
+
 }
 $myController->send(1, $myGame->generateSendingString());
 $myController->send(2, $myGame->generateSendingString());

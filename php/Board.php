@@ -126,7 +126,12 @@ class Board{
      */
     public function updateTime($turn, $time){
         $this->player[$turn]->timeLeft -= $time;
-        echo "Player ".$turn." has ".$this->player[$turn]->timeLeft."s left\n";
+        if($this->player[$turn]->timeLeft < 0){
+            $this->setGameOver("No time left for Player $turn \n");
+        }
+        else {
+            echo "Player " . $turn . " has " . $this->player[$turn]->timeLeft . "s left\n";
+        }
     }
 
     function __construct($boardLength, $numberOfWeight, $boardWeight){
