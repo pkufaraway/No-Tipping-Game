@@ -11,7 +11,7 @@ $myController->createConnection();
 while(!$myGame->gameOver){
     echo "--------------------------------------------------------------------------------------------------------------\n";
     $sendingString = $myGame->generateSendingString();
-    if($sendingString[0] == '0'){
+    if($sendingString[0] == '1'){
         echo "Placing Stage, board state: \n";
     } else {
         echo "Removing Stage, board state: \n";
@@ -24,10 +24,10 @@ while(!$myGame->gameOver){
     $myGame->updateTime($myGame->currentTurn, $time2 - $time1);
     $myMove = explode(" ", $move);
     if($myGame->currentState == "place") {
-        $myGame->move($myMove[0], $myMove[1]);
+        $myGame->move((int)$myMove[0], (int)$myMove[1]);
     }
     else {
-        $myGame->remove($myMove[0]);
+        $myGame->remove((int)$myMove[0]);
     }
 }
 $myController->send(1, $myGame->generateSendingString());

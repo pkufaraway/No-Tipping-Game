@@ -87,7 +87,7 @@ class Board{
                 $this->setGameOver("Tipping by player $this->currentTurn\n");
             }
             else {
-                echo "Player $this->currentTurn put $weight on $position, still balance\n";
+                echo "Player $this->currentTurn put $weight on $position, still balanced\n";
                 $this->currentPut++;
                 if($this->currentPut == $this->boardLength * 2 + 1 || $this->currentPut == 2 * $this->maxWeight){
                     $this->currentState = "remove";

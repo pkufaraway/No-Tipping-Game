@@ -50,7 +50,8 @@ class GameController
     {
         while (true) {
             $data = socket_read($this->resources[$player], 1024, PHP_BINARY_READ);
-            if ($data) {
+            if ($data != "") {
+                echo $data;
                 return $data;
             }
         }
